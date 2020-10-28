@@ -169,7 +169,7 @@ pack_{{ package.name }}:
 
 {% for editor in editors %}
 {% for param in target.test_params %}
-{% for extra-editor-arg in param.extra-editor-args %}
+{% for extra-editor-arg in target.extra-editor-args %}
 test_{{ package.name }}_{{ param.platform }}_{{ param.backend }}_{{ target.name }}_{{ editor.version }}:
   name : Test {{ package.packagename }} with {{ param.platform }} {{ param.backend }} {{ editor.version }} on {{ target.name }}
   agent:
