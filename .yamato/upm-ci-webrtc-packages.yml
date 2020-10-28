@@ -38,8 +38,9 @@ test_targets:
     image: renderstreaming/win10:latest
     flavor: b1.large
     is_gpu: false
-    extra-editor-args:
-      - force-d3d11
+    gfxtypes:
+      - name: D3D11
+        extra-editor-arg: force-d3d11
     test_params:
       - backend: mono
         platform: editmode
@@ -54,8 +55,9 @@ test_targets:
     image: renderstreaming/ubuntu-18.04:latest
     flavor: b1.large
     is_gpu: false
-    extra-editor-args:
-      - force-vulkan
+    gfxtypes:
+      - name: Vulkan
+        extra-editor-arg: force-vulkan
     test_params:
       - backend: mono
         platform: editmode
@@ -70,8 +72,9 @@ test_targets:
     image: renderstreaming/win10:latest
     flavor: b1.large
     is_gpu: true
-    extra-editor-args:
-      - force-d3d11
+    gfxtypes:
+      - name: D3D11
+        extra-editor-arg: force-d3d11
     test_params:
       - backend: mono
         platform: editmode
@@ -86,8 +89,9 @@ test_targets:
     image: renderstreaming/ubuntu-18.04:latest
     flavor: b1.large
     is_gpu: true
-    extra-editor-args:
-      - force-vulkan
+    gfxtypes:
+      - name: Vulkan
+        extra-editor-arg: force-vulkan
     test_params:
       - backend: mono
         platform: editmode
@@ -102,8 +106,9 @@ test_targets:
     image: slough-ops/macos-10.14-xcode
     flavor: m1.mac
     is_gpu: true
-    extra-editor-args:
-      - force-metal
+    gfxtypes:
+      - name: Metal
+        extra-editor-arg: force-metal
     test_params:
       - backend: mono
       - backend: il2cpp
@@ -169,16 +174,16 @@ pack_{{ package.name }}:
 
 {% for editor in editors %}
 {% for param in target.test_params %}
-{% for extra-editor-arg in target.extra-editor-args %}
+{% for gfx in target.gfxtypes %}
 test_{{ package.name }}_{{ param.platform }}_{{ param.backend }}_{{ target.name }}_{{ editor.version }}:
-  name : Test {{ package.packagename }} with {{ param.platform }} {{ param.backend }} {{ editor.version }} on {{ target.name }}
+  name : Test {{ package.packagename }} with {{ param.platform }} {{ param.backend }} {{ editor.version }} on {{ target.name }} {{ gfx.name }}
   agent:
     type: {{ target.type }}
     image: {{ target.image }}
     flavor: {{ target.flavor }}
   commands:
     - npm install upm-ci-utils@{{ upm.package_version }} -g --registry {{ upm.registry_url }}
-    - upm-ci package test -u {{ editor.version }} --platform {{ param.platform }} --backend {{ param.backend }} --extra-editor-arg {{ extra-editor-arg }}
+    - upm-ci package test -u {{ editor.version }} --platform {{ param.platform }} --backend {{ param.backend }} --extra-editor-arg {{ gfx.extra-editor-arg }}
   artifacts:
     {{ package.name }}_{{ param.backend }}_{{ editor.version }}_{{ target.name }}_test_results: 
       paths:
