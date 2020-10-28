@@ -38,6 +38,8 @@ test_targets:
     image: renderstreaming/win10:latest
     flavor: b1.large
     is_gpu: false
+    extra-editor-args:
+      - force-d3d11
     test_params:
       - backend: mono
         platform: editmode
@@ -52,6 +54,8 @@ test_targets:
     image: renderstreaming/ubuntu-18.04:latest
     flavor: b1.large
     is_gpu: false
+    extra-editor-args:
+      - force-vulkan
     test_params:
       - backend: mono
         platform: editmode
@@ -66,6 +70,8 @@ test_targets:
     image: renderstreaming/win10:latest
     flavor: b1.large
     is_gpu: true
+    extra-editor-args:
+      - force-d3d11
     test_params:
       - backend: mono
         platform: editmode
@@ -80,6 +86,8 @@ test_targets:
     image: renderstreaming/ubuntu-18.04:latest
     flavor: b1.large
     is_gpu: true
+    extra-editor-args:
+      - force-vulkan
     test_params:
       - backend: mono
         platform: editmode
@@ -94,6 +102,8 @@ test_targets:
     image: slough-ops/macos-10.14-xcode
     flavor: m1.mac
     is_gpu: true
+    extra-editor-args:
+      - force-metal
     test_params:
       - backend: mono
       - backend: il2cpp
@@ -159,6 +169,7 @@ pack_{{ package.name }}:
 
 {% for editor in editors %}
 {% for param in target.test_params %}
+{% for extra-editor-arg in param.extra-editor-args %}
 test_{{ package.name }}_{{ param.platform }}_{{ param.backend }}_{{ target.name }}_{{ editor.version }}:
   name : Test {{ package.packagename }} with {{ param.platform }} {{ param.backend }} {{ editor.version }} on {{ target.name }}
   agent:
@@ -167,13 +178,14 @@ test_{{ package.name }}_{{ param.platform }}_{{ param.backend }}_{{ target.name 
     flavor: {{ target.flavor }}
   commands:
     - npm install upm-ci-utils@{{ upm.package_version }} -g --registry {{ upm.registry_url }}
-    - upm-ci package test -u {{ editor.version }} --platform {{ param.platform }} --backend {{ param.backend }}
+    - upm-ci package test -u {{ editor.version }} --platform {{ param.platform }} --backend {{ param.backend }} --extra-editor-arg {{ extra-editor-arg }}
   artifacts:
     {{ package.name }}_{{ param.backend }}_{{ editor.version }}_{{ target.name }}_test_results: 
       paths:
         - "upm-ci~/test-results/**/*"
   dependencies:
     - .yamato/upm-ci-{{ package.name }}-packages.yml#pack_{{ package.name }}    
+{% endfor %}
 {% endfor %}
 {% endfor %}
 {% else -%}
